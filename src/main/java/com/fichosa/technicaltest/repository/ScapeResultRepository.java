@@ -10,22 +10,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ScapeResultRepository extends JpaRepository<ScapeResult, Integer> {
 
-    @Query("SELECT SUM(CASE WHEN tr.scape = TRUE THEN 1 ELSE 0 END) AS countSuccessfulEscape" +
-            ",SUM(CASE WHEN tr.scape = FALSE THEN 1 ELSE 0 END) AS countUnsuccessfulEscape " +
+    @Query("SELECT new com.fichosa.technicaltest.model.Stats(SUM(CASE WHEN tr.scape = TRUE THEN 1 ELSE 0 END)" +
+            ",SUM(CASE WHEN tr.scape = FALSE THEN 1 ELSE 0 END)) " +
             "FROM ScapeResult tr")
     @QueryHints
-    Object[][] getStatsSum();
+    Stats getStats();
 
-    default Stats getStats() {
-        Object[][] sums = getStatsSum();
-        long successfullEscape = 0l;
-        long unsuccessfullEscape = 0l;
-
-        if (sums != null && sums[0] != null && sums[0][0] != null) {
-            successfullEscape = ((Number) sums[0][0]).longValue();
-            unsuccessfullEscape = ((Number) sums[0][1]).longValue();
-        }
-
-        return new Stats(successfullEscape, unsuccessfullEscape);
-    }
 }
